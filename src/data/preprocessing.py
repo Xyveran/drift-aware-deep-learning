@@ -7,6 +7,7 @@ import pandas as pd
 from pathlib import Path
 from typing import List, Tuple, Dict
 from sklearn.datasets import load_svmlight_file
+from src.data.splits import batch_based_split
 
 #
 # Constants
@@ -205,47 +206,6 @@ def create_windows_from_df(
         np.array(t_windows),
         np.array(b_windows),
     )
-
-
-#
-# Splitting
-#
-
-
-def batch_based_split(
-    batch_ids: np.ndarray, train_batches: List[int], test_batches: List[int]
-) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    Return indices for train and test splits based on batch membership.
-
-    Raises:
-        ValueError if any requested batch ID is not present in 'batch_ids', or if
-        train and test batch sets overlap.
-    """
-    available = set(np.unique(batch_ids).tolist())
-    train_set = set(train_batches)
-    test_set = set(test_batches)
-
-    missing_train = train_set - available
-    if missing_train:
-        raise ValueError(
-            f"train_batches {sorted(missing_train)} not found in batch_ids."
-        )
-
-    missing_test = test_set - available
-    if missing_test:
-        raise ValueError(f"test_batches {sorted(missing_test)} not found in batch_ids.")
-
-    overlap = train_set & test_set
-    if overlap:
-        raise ValueError(
-            f"Batches {sorted(overlap)} appear in both train and test sets."
-        )
-
-    train_idx = np.where(np.isin(batch_ids, train_batches))[0]
-    test_idx = np.where(np.isin(batch_ids, test_batches))[0]
-
-    return train_idx, test_idx
 
 
 #
