@@ -1,0 +1,74 @@
+# base.yaml with project wide defaults
+# Model-specific configs override
+
+#
+# Paths
+#
+
+paths:
+  raw_data_dir: "data/raw"
+  processed_dir: "data/processed"
+  results_dir: "results"
+  logs_dir: "results/logs"
+  metrics_dir: "results/metrics"
+  plots_dir: "results/plots"
+
+#
+# Data / Preprocessing
+#
+
+data:
+  window_size: 100    # timestamps per input window
+  stride: 20          # steps between consecutive windows
+  normalize: true     # z-score normalization (fit on train only)
+  train_batches: [1, 2, 3, 4, 5, 6, 7]
+  test_batches: [8, 9, 10]
+  num_sensors: 16     # affects feature dimensionality (16 sensors X 8 features = 128)
+  num_workers: 0
+
+#
+# Model: base defaults shared across all architectures
+#
+
+model:
+  name: "cnn"           # overridden by future .yaml files (cnn, lstm, transformer)
+  num_classes: 6        # one per gas type in GAS_MAP
+  input_channels: 128   # num_sensors X features_per_sensor
+  dropout: 0.3
+
+#
+# Training
+#
+
+training:
+ epochs: 50
+ batch_size = 64
+ learning_rate: 1.0e-3
+ weight_decay: 1.0e-4
+ early_stopping_patience: 10    # epochs without value improvement before stopping
+ checkpoint_metric: "val_loss"  # metric to decide best checkpoint
+ checkpoint_mode: "min"         # "min" for loss, "max" for accurary/f1
+
+#
+# Evaluation
+#
+
+evaluation:
+  metrics: ["accurary", "f1_macro", "f1_weighted"]
+  eval_stride: 1        # prequential eval, steps between evaluations
+  recovery_window: 50   # timestamps after drift event to measure recovery
+
+#
+# Reproducibility
+#
+
+seed: 42
+
+#
+# Logging
+#
+
+logging:
+  level: "INFO"         # DEBUG | INFO | WARNING | ERROR
+  log_to_file: true
+  log_to_console: true
